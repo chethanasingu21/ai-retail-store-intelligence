@@ -99,4 +99,7 @@ def anomalies(store_id: str):
 
 @app.get("/health")
 def health():
-    return {"status": "healthy"}
+    return {
+        "status": "healthy",
+        "service": "store-intelligence-api"
+    }
