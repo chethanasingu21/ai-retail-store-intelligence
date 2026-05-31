@@ -62,6 +62,16 @@ Analytics Layer
 * Anomaly API
 
 ---
+Additional Business Intelligence APIs
+
+GET /stores/{store_id}/conversion
+Returns store conversion metrics.
+
+GET /stores/{store_id}/brands
+Returns top performing brands.
+
+GET /stores/{store_id}/staff
+Returns salesperson performance metrics.
 
 ## Features
 
