@@ -6,7 +6,7 @@ from app.brands import get_top_brands
 from app.schemas import IngestRequest
 from app.ingestion import save_event
 from app.models import Event
-
+from app.seed import seed_demo_data
 from app.staff import get_staff_performance
 from fastapi import FastAPI
 from app.metrics import get_store_metrics
@@ -17,7 +17,16 @@ from app.anomalies import get_anomalies
 Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Store Intelligence API")
 
+@app.on_event("startup")
+def initialize_demo_data():
 
+    db = SessionLocal()
+
+    if db.query(Event).count() == 0:
+        seed_demo_data(db)
+
+    db.close()
+    
 @app.get("/")
 def root():
     return {"status": "running"}

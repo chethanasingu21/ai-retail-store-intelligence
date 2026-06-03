@@ -8,7 +8,10 @@ def get_store_metrics(db: Session, store_id: str):
 
     footfall = (
         db.query(Event)
-        .filter(Event.store_id == store_id)
+        .filter(
+            Event.store_id == store_id,
+            Event.event_type == "person_entered"
+        )
         .count()
     )
 
