@@ -1,168 +1,64 @@
-# Store Intelligence Platform
+# AI-Powered Retail Store Intelligence Platform
+
+An end-to-end retail analytics platform that transforms CCTV footage and retail sales data into actionable business intelligence using Computer Vision, Event Processing, and Analytics APIs.
 
 ## Overview
 
-Store Intelligence Platform is an AI-powered retail analytics system that transforms CCTV video feeds into actionable business insights.
+This project analyzes retail store CCTV footage using YOLOv8-based customer detection and combines the generated events with sales data to provide operational and business insights.
 
-The platform processes surveillance footage using YOLOv8-based person detection, generates store events in real time, stores them through a FastAPI backend, and exposes analytics APIs for operational monitoring.
-
-The solution helps retailers understand customer traffic, zone popularity, visitor behavior, and operational anomalies.
+The platform enables retailers to track customer activity, measure conversion rates, monitor staff performance, identify top-performing brands, detect anomalies, and optimize store operations.
 
 ---
-## Demo Access
-
-No authentication required.
-
-Swagger UI:
-http://localhost:8000/docs
-
-
-## Problem Statement
-
-Retail stores generate large volumes of CCTV footage, but extracting meaningful business insights from these video streams is difficult.
-
-This project converts raw CCTV video into structured retail intelligence by:
-
-* Detecting customer presence
-* Measuring footfall
-* Generating zone-based heatmaps
-* Tracking visitor activity
-* Detecting operational anomalies
-* Providing analytics APIs for reporting
-
----
-
-## Solution Architecture
-
-CCTV Cameras (CAM1 - CAM5)
-
-↓
-
-YOLOv8 Person Detection
-
-↓
-
-Event Generation Pipeline
-
-↓
-
-FastAPI Backend
-
-↓
-
-SQLite Database
-
-↓
-
-Analytics Layer
-
-* Metrics API
-* Funnel API
-* Heatmap API
-* Anomaly API
-
----
-Additional Business Intelligence APIs
-
-GET /stores/{store_id}/conversion
-Returns store conversion metrics.
-
-GET /stores/{store_id}/brands
-Returns top performing brands.
-
-GET /stores/{store_id}/staff
-Returns salesperson performance metrics.
 
 ## Features
 
-### AI Detection Pipeline
+### Computer Vision Analytics
 
-* YOLOv8 person detection
-* Multi-camera video processing
-* Real-time event generation
+* YOLOv8 customer detection
+* Automated visitor counting
+* Event generation from CCTV footage
+* Multi-camera processing pipeline
 
-### Analytics APIs
+### Business Intelligence Analytics
 
-#### Metrics
+* Footfall analytics
+* Customer funnel analytics
+* Conversion rate analytics
+* Top brand performance analytics
+* Staff performance analytics
+* Zone heatmaps
+* Operational anomaly detection
 
-Provides:
+### Platform Features
 
-* Footfall
-* Unique visitors
-* Visitors currently inside store
-
-#### Funnel
-
-Tracks:
-
-* Entered
-* Engaged
-* Checkout
-* Purchased
-
-#### Heatmap
-
-Provides zone popularity analysis:
-
-* Skincare
-* Makeup
-* Entrance
-* Checkout
-* Stockroom
-
-#### Anomaly Detection
-
-Detects:
-
-* Queue spikes
-* High visitor volume
-* Low activity conditions
+* FastAPI REST APIs
+* SQLite event storage
+* Dockerized deployment
+* Public cloud deployment on Render
 
 ---
 
-## Technology Stack
+## Architecture
 
-Backend
+CCTV Cameras
+↓
+YOLOv8 Detection
+↓
+Event Generator
+↓
+FastAPI Backend
+↓
+SQLite Database
+↓
+Analytics Engine
+↓
+Business Intelligence APIs
 
-* FastAPI
-* Python 3.10
-* SQLAlchemy
-* SQLite
-
-AI & Computer Vision
-
-* YOLOv8
-* OpenCV
-* PyTorch
-
-Infrastructure
-
-* Docker
-* Docker Compose
-
----
-
-## Project Structure
-
-store-intelligence/
-
-├── app/
-
-├── pipeline/
-
-├── data/
-
-├── docs/
-
-├── tests/
-
-├── Dockerfile
-
-├── docker-compose.yml
-
-├── requirements.txt
-
-└── README.md
+Sales Data (POS)
+↓
+Analytics Engine
+↓
+Brand, Staff and Conversion Insights
 
 ---
 
@@ -172,57 +68,115 @@ store-intelligence/
 
 POST /events/ingest
 
-### Metrics
+Accepts generated visitor events from the detection pipeline.
+
+### Analytics APIs
 
 GET /stores/{store_id}/metrics
 
-### Funnel
+Returns:
+
+* Footfall
+* Unique visitors
+* Visitors inside
 
 GET /stores/{store_id}/funnel
 
-### Heatmap
+Returns customer funnel metrics.
 
 GET /stores/{store_id}/heatmap
 
-### Anomalies
+Returns store zone activity data.
 
 GET /stores/{store_id}/anomalies
 
-### Health Check
+Returns detected operational anomalies.
 
-GET /health
+GET /stores/{store_id}/conversion
 
----
+Returns:
 
-## Sample Results
+* Footfall
+* Buyers
+* Conversion rate
 
-Metrics
+GET /stores/{store_id}/brands
 
-* Footfall: 317
-* Unique Visitors: 142
+Returns top-performing brands based on GMV.
 
-Heatmap
+GET /stores/{store_id}/staff
 
-* Skincare: 140 visits
-* Makeup: 108 visits
-
-Anomalies
-
-* Queue Spike Detected
+Returns staff performance ranked by GMV.
 
 ---
 
-## Future Improvements
+## Technology Stack
 
-* Multi-object tracking using ByteTrack or DeepSORT
-* Real-time streaming ingestion
-* PostgreSQL deployment
-* Dashboard visualization
-* Advanced anomaly detection
+* Python
+* FastAPI
+* YOLOv8
+* OpenCV
+* SQLite
+* Pandas
+* Docker
+
+---
+
+## Local Setup
+
+1. Clone the repository
+
+git clone <repository-url>
+
+2. Navigate to the project directory
+
+cd store-intelligence
+
+3. Start the application
+
+docker compose up --build
+
+4. Open Swagger UI
+
+http://localhost:8000/docs
+
+---
+
+## Cloud Demo
+
+Swagger Documentation:
+
+https://ai-retail-store-intelligence.onrender.com/docs
+
+Health Check:
+
+https://ai-retail-store-intelligence.onrender.com/health
+
+---
+
+## Screenshots
+
+Include screenshots from:
+
+* Swagger UI
+* Heatmap Analytics
+* Metrics API
+* Anomaly Detection
+* Architecture Diagram
+
+---
+
+## Future Enhancements
+
+* Real-time streaming analytics
+* PostgreSQL integration
+* Multi-store dashboard
+* Predictive demand forecasting
 * Customer journey analytics
 
 ---
 
-## Conclusion
+## Author
 
-This project demonstrates an end-to-end retail intelligence platform that converts CCTV video feeds into actionable business insights through AI-powered detection, event processing, and analytics services.
+Chethana Singu
+Associate Data Engineer
