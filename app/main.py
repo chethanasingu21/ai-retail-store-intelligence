@@ -13,6 +13,7 @@ from app.metrics import get_store_metrics
 from app.funnel import get_store_funnel
 from app.heatmap import get_heatmap
 from app.anomalies import get_anomalies
+from sqlalchemy import func
 
 Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Store Intelligence API")
@@ -135,22 +136,30 @@ def conversion(store_id: str):
 
     db = SessionLocal()
 
-    metrics = get_store_metrics(
-        db=db,
-        store_id=store_id
+    footfall = (
+        db.query(Event)
+        .filter(
+            Event.store_id == store_id,
+            Event.event_type == "person_entered"
+        )
+        .count()
     )
 
-    db.close()
-
-    sales = get_sales_metrics()
-
-    footfall = metrics["footfall"]
-    buyers = sales["buyers"]
+    buyers = (
+        db.query(Event)
+        .filter(
+            Event.store_id == store_id,
+            Event.event_type == "purchase_completed"
+        )
+        .count()
+    )
 
     conversion_rate = (
         round((buyers / footfall) * 100, 2)
         if footfall > 0 else 0
     )
+
+    db.close()
 
     return {
         "store_id": store_id,
@@ -158,6 +167,7 @@ def conversion(store_id: str):
         "buyers": buyers,
         "conversion_rate": conversion_rate
     }
+
 @app.get("/stores/{store_id}/brands")
 def brands(store_id: str):
 
