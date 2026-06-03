@@ -107,6 +107,21 @@ def anomalies(store_id: str):
 
     return result
 
+@app.post("/demo/reset")
+def reset_demo():
+
+    db = SessionLocal()
+
+    db.query(Event).delete()
+    db.commit()
+
+    seed_demo_data(db)
+
+    db.close()
+
+    return {
+        "status": "demo data reloaded"
+    }
 
 @app.get("/health")
 def health():
@@ -158,20 +173,4 @@ def staff(store_id: str):
     return {
         "store_id": store_id,
         "staff_performance": get_staff_performance()
-    }
-
-@app.post("/demo/reset")
-def reset_demo():
-
-    db = SessionLocal()
-
-    db.query(Event).delete()
-    db.commit()
-
-    seed_demo_data(db)
-
-    db.close()
-
-    return {
-        "status": "demo data reloaded"
     }
