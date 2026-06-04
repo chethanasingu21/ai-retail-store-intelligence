@@ -1,28 +1,41 @@
 # DESIGN.md
 
-# Store Intelligence Platform - System Design
+# Store Intelligence Platform – System Design
 
 ## Overview
 
-The Store Intelligence Platform is an AI-powered retail analytics system that converts CCTV video streams into actionable business insights.
+The AI-Powered Retail Store Intelligence Platform is an end-to-end retail analytics system that transforms CCTV video streams and retail sales data into actionable business intelligence.
 
-The solution processes footage from multiple store cameras, detects customer presence using computer vision, generates structured events, stores them in a database, and exposes analytics APIs for operational monitoring.
+The platform combines Computer Vision, Event-Driven Data Processing, PostgreSQL storage, and Analytics APIs to provide insights into customer behavior, store operations, sales performance, and operational efficiency.
 
-The objective is to help retail operators understand customer behavior, store traffic patterns, zone popularity, and operational anomalies.
+The primary goal is to help retailers make data-driven decisions by automatically generating insights from both physical store activity and transaction data.
 
 ---
 
-# Architecture
+# System Architecture
 
-CCTV Cameras (CAM1–CAM5)
+The platform consists of six major layers:
+
+1. Video Ingestion Layer
+2. AI Detection Layer
+3. Event Processing Layer
+4. Data Storage Layer
+5. Analytics Layer
+6. API Consumption Layer
+
+---
+
+# High-Level Data Flow
+
+CCTV Cameras
 
 ↓
 
-YOLOv8 Person Detection
+YOLOv8 Detection Engine
 
 ↓
 
-Event Generation Pipeline
+Customer Tracking & Event Generation
 
 ↓
 
@@ -30,119 +43,287 @@ FastAPI Event Ingestion API
 
 ↓
 
-SQLite Database
+PostgreSQL Event Store
 
 ↓
 
-Analytics Layer
-
-- Metrics
-- Funnel
-- Heatmap
-- Anomalies
+Analytics Engine
 
 ↓
 
-Business Insights
+Business Intelligence APIs
+
+↓
+
+Retail Insights
+
+Sales Data (POS)
+
+↓
+
+Analytics Engine
+
+↓
+
+Brand Analytics, Staff Analytics & Conversion Insights
 
 ---
 
-# Detection Pipeline
+# Video Ingestion Layer
 
-The pipeline processes video frames using OpenCV.
+Multiple CCTV cameras monitor different store zones.
 
-Every 30th frame is passed through a YOLOv8 model.
+Example Zones:
 
-Detected people are converted into retail events containing:
+* Entrance
+* Skincare
+* Makeup
+* Checkout
+* Stockroom
 
-- store_id
-- visitor_id
-- camera_id
-- timestamp
-- event_type
-- zone
-
-These events are sent to the backend using the ingestion endpoint.
+Video streams are processed at configurable intervals to optimize inference performance while maintaining sufficient detection accuracy.
 
 ---
 
-# Data Storage
+# AI Detection Layer
 
-SQLite was selected for simplicity and fast development.
+YOLOv8 is used for customer detection.
 
-Events are stored in a structured format and queried through SQLAlchemy ORM.
+Responsibilities include:
 
-The schema supports:
+* Person detection
+* Visitor counting
+* Zone activity monitoring
+* Event generation
 
-- Event tracking
-- Visitor analytics
-- Zone analytics
-- Funnel analytics
+The lightweight YOLOv8n model was selected to support efficient execution in CPU-constrained environments.
+
+Example Detection Output:
+
+```json
+{
+  "camera_id": "cam1",
+  "zone": "skincare",
+  "people_detected": 4
+}
+```
 
 ---
 
-# Analytics APIs
+# Event Processing Layer
 
-The platform exposes REST APIs for:
+Raw detections are transformed into structured business events.
 
-## Metrics
+Example Event:
+
+```json
+{
+  "event_id": "e1",
+  "store_id": "purplle_001",
+  "visitor_id": "v1",
+  "camera_id": "cam1",
+  "event_type": "person_entered",
+  "timestamp": "2026-06-03T10:00:00Z"
+}
+```
+
+Supported Event Types:
+
+* person_entered
+* product_engaged
+* checkout_visit
+* purchase_completed
+
+This event-driven design separates computer vision logic from analytics logic, improving maintainability and extensibility.
+
+---
+
+# Data Storage Layer
+
+PostgreSQL serves as the primary datastore.
+
+Stored Information:
+
+* Event identifiers
+* Visitor identifiers
+* Camera metadata
+* Event timestamps
+* Event types
+* Zone information
+
+Benefits:
+
+* Persistent storage
+* Cloud deployment support
+* Structured querying
+* Production readiness
+
+SQLAlchemy ORM is used to abstract database interactions.
+
+---
+
+# Analytics Layer
+
+The analytics engine processes stored events and sales data to generate business intelligence.
+
+## Store Metrics
 
 Provides:
 
-- Footfall
-- Unique visitors
-- Visitors currently inside
+* Footfall
+* Unique Visitors
+* Visitors Inside
 
-## Funnel
+## Funnel Analytics
 
-Provides customer journey visibility:
+Provides:
 
-- Entered
-- Engaged
-- Checkout
-- Purchased
+* Entered
+* Engaged
+* Checkout
+* Purchased
 
-## Heatmap
+## Heatmap Analytics
 
-Provides zone-level visitor activity.
+Provides:
 
-## Anomalies
+* Zone popularity
+* Customer engagement hotspots
 
-Detects unusual operational conditions.
+## Conversion Analytics
+
+Provides:
+
+* Buyers
+* Conversion rate
+* Customer purchase efficiency
+
+## Brand Analytics
+
+Provides:
+
+* Top-performing brands
+* Revenue contribution
+
+## Staff Analytics
+
+Provides:
+
+* Staff rankings
+* Revenue performance
+
+## Anomaly Detection
+
+Provides:
+
+* Traffic spikes
+* Queue build-up alerts
+* Operational anomalies
+
+---
+
+# API Layer
+
+Business intelligence is exposed through FastAPI REST APIs.
+
+Available Endpoints:
+
+* POST /events/ingest
+* GET /stores/{store_id}/metrics
+* GET /stores/{store_id}/funnel
+* GET /stores/{store_id}/heatmap
+* GET /stores/{store_id}/anomalies
+* GET /stores/{store_id}/conversion
+* GET /stores/{store_id}/brands
+* GET /stores/{store_id}/staff
+
+Interactive documentation is available through Swagger UI.
 
 ---
 
 # Scalability Considerations
 
-The current implementation uses SQLite and a single FastAPI service.
+The current implementation is optimized for hackathon-scale deployment.
 
-For production deployment the following upgrades would be recommended:
+Future production enhancements may include:
 
-- PostgreSQL
-- Kafka event streaming
-- Distributed inference workers
-- Redis caching
-- Kubernetes deployment
+* Kafka event streaming
+* Redis caching
+* Distributed inference workers
+* Multi-store aggregation
+* Kubernetes deployment
+* Real-time dashboards
+
+The event-driven architecture was intentionally designed to support these future extensions.
 
 ---
 
 # AI-Assisted Decisions
 
-AI tools were used to accelerate architecture exploration, API design, and implementation planning.
+AI tools were used throughout development as engineering assistants to accelerate research, design exploration, implementation planning, debugging, and documentation.
 
-Several approaches were evaluated with AI assistance including:
+AI-assisted exploration was used for:
 
-- YOLOv8 vs alternative object detectors
-- Event schema design
-- Analytics API structure
-- Database organization
+### Model Selection
 
-The final implementation decisions were reviewed and adapted manually based on project constraints, development speed, and deployment simplicity.
+Evaluated:
 
-AI was used as a productivity accelerator rather than a replacement for engineering judgment.
+* YOLOv8
+* Faster R-CNN
+* RT-DETR
+
+YOLOv8 was selected due to its balance of speed, simplicity, and detection quality.
+
+### Event Schema Design
+
+Different event representations were evaluated before selecting a structured event model.
+
+This enabled clean separation between detection and analytics systems.
+
+### API Architecture
+
+Several API structures were explored before adopting REST-based analytics endpoints.
+
+FastAPI was selected because of:
+
+* Automatic OpenAPI generation
+* Type validation
+* Developer productivity
+
+### Database Strategy
+
+SQLite was initially used for local development.
+
+PostgreSQL was adopted for cloud deployment to provide persistence, scalability, and production-readiness.
+
+### Deployment Strategy
+
+Multiple deployment approaches were considered before selecting Docker + Render due to simplicity and ease of evaluation.
+
+### Engineering Review
+
+All AI-generated suggestions were manually reviewed and adapted before implementation.
+
+AI served as a productivity accelerator and design assistant rather than a replacement for engineering judgment.
 
 ---
+# Schema Compatibility
+
+The provided sample_events.jsonl schema includes additional attributes such as:
+
+- Staff Identification
+- Demographic Predictions
+- Group Tracking
+- Zone Metadata
+
+The platform was intentionally designed using a flexible event-driven architecture and metadata-based schema.
+
+This allows additional attributes to be incorporated without requiring changes to the analytics pipeline, storage layer, or API interfaces.
+
+The architecture therefore remains compatible with future schema extensions while preserving backward compatibility.
 
 # Conclusion
 
-The system successfully transforms CCTV footage into structured retail intelligence through computer vision, event processing, analytics APIs, and operational monitoring.
+The Store Intelligence Platform successfully transforms CCTV footage and retail sales data into structured business intelligence through Computer Vision, Event Processing, PostgreSQL storage, and Analytics APIs.
+
+The architecture balances rapid development, production readiness, and future scalability while demonstrating how Data Engineering and AI can be combined to solve real-world retail challenges.

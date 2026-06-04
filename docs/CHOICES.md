@@ -1,150 +1,358 @@
 # CHOICES.md
 
-# Key Technical Decisions
+# Technical Design Decisions
 
-This document explains major architectural decisions made during implementation.
+This document explains the key architectural and implementation decisions made during the development of the AI-Powered Retail Store Intelligence Platform.
+
+The project was built using an AI-assisted engineering workflow, where design alternatives were evaluated before selecting the final implementation.
 
 ---
 
-# Decision 1: Detection Model
+# Decision 1: Object Detection Model
 
 ## Options Considered
 
-- YOLOv8
-- Faster R-CNN
-- RT-DETR
+### YOLOv8
 
-## AI Recommendation
+Pros:
 
-AI-assisted exploration suggested YOLOv8 because it provides a strong balance between speed, simplicity, and accuracy.
+* Fast inference
+* Lightweight deployment
+* Excellent community support
+* Easy integration
+
+### Faster R-CNN
+
+Pros:
+
+* High accuracy
+
+Cons:
+
+* Slower inference
+* Higher resource requirements
+
+### RT-DETR
+
+Pros:
+
+* Modern transformer-based architecture
+
+Cons:
+
+* More complex setup
+* Limited development time
+
+---
+
+## AI-Assisted Evaluation
+
+Multiple model options were evaluated based on:
+
+* Detection accuracy
+* Inference speed
+* Ease of deployment
+* CPU compatibility
+
+The AI-assisted evaluation consistently favored YOLOv8 for rapid development and real-time retail analytics.
+
+---
 
 ## Final Choice
 
-YOLOv8
-
-## Why
-
-The challenge required rapid development and real-time inference.
-
-YOLOv8 offers:
-
-- Easy setup
-- Strong community support
-- Fast inference
-- Good person detection performance
-
-The lightweight YOLOv8n model was selected because it performs well on CPU-only environments.
+YOLOv8n
 
 ---
 
-# Decision 2: Event Schema
+## Rationale
+
+The challenge prioritized practical deployment and event generation rather than maximizing benchmark accuracy.
+
+YOLOv8n provides:
+
+* Fast inference
+* Lightweight execution
+* Strong person detection performance
+* Easy deployment in Docker environments
+
+This made it the most suitable choice for a hackathon-scale implementation.
+
+---
+
+# Decision 2: Event Data Model
 
 ## Options Considered
 
-Option A:
+### Option A
 
-Store raw detections only.
+Store raw detection outputs directly.
 
-Option B:
+Example:
 
-Convert detections into structured retail events.
+```json
+{
+  "camera_id": "cam1",
+  "person_count": 4
+}
+```
 
-## AI Recommendation
+### Option B
 
-AI suggested using structured events because analytics become significantly easier.
+Convert detections into structured business events.
+
+Example:
+
+```json
+{
+  "event_id": "e1",
+  "store_id": "purplle_001",
+  "visitor_id": "v1",
+  "event_type": "person_entered"
+}
+```
+
+---
+
+## AI-Assisted Evaluation
+
+The AI-assisted analysis recommended an event-driven architecture because analytics systems operate more effectively on business events than raw detections.
+
+---
 
 ## Final Choice
 
 Structured Event Schema
 
+---
+
+## Rationale
+
 Each event contains:
 
-- event_id
-- store_id
-- visitor_id
-- camera_id
-- event_type
-- timestamp
-- metadata
+* event_id
+* store_id
+* visitor_id
+* camera_id
+* event_type
+* timestamp
+* metadata
 
-## Why
+Benefits:
 
-The event-based design separates detection from analytics.
+* Decouples detection from analytics
+* Simplifies aggregation queries
+* Supports future streaming pipelines
+* Enables scalable analytics services
 
-Analytics APIs can evolve independently without changing the detection pipeline.
-
-This architecture also mirrors production data engineering systems.
+This approach closely resembles production-grade data engineering architectures.
 
 ---
 
-# Decision 3: Backend Architecture
+# Decision 3: Backend Framework
 
 ## Options Considered
 
-- Flask
-- Django
-- FastAPI
+### Flask
 
-## AI Recommendation
+Pros:
 
-FastAPI was recommended because of automatic OpenAPI generation and strong developer productivity.
+* Lightweight
+* Simple
+
+Cons:
+
+* Manual API documentation
+
+### Django
+
+Pros:
+
+* Feature rich
+
+Cons:
+
+* Heavyweight for microservices
+
+### FastAPI
+
+Pros:
+
+* High performance
+* Automatic OpenAPI generation
+* Built-in validation
+
+---
+
+## AI-Assisted Evaluation
+
+FastAPI was recommended because it provides strong developer productivity while maintaining excellent runtime performance.
+
+---
 
 ## Final Choice
 
 FastAPI
 
-## Why
+---
 
-Benefits included:
+## Rationale
 
-- Automatic Swagger UI
-- Type validation
-- Fast development
-- Clean API design
+Benefits:
 
-This reduced development effort and improved maintainability.
+* Automatic Swagger UI
+* OpenAPI support
+* Request validation
+* Type safety
+* Rapid development
+
+These features accelerated implementation while improving API quality.
 
 ---
 
-# Decision 4: Database Choice
+# Decision 4: Database Architecture
 
 ## Options Considered
 
-- SQLite
-- PostgreSQL
-- MongoDB
+### SQLite
+
+Pros:
+
+* Zero configuration
+* Lightweight
+* Easy local development
+
+Cons:
+
+* Limited scalability
+* Not suitable for cloud production workloads
+
+### PostgreSQL
+
+Pros:
+
+* Production ready
+* Persistent cloud storage
+* Advanced querying
+* Scalable architecture
+
+Cons:
+
+* Additional setup
+
+### MongoDB
+
+Pros:
+
+* Flexible schema
+
+Cons:
+
+* Less suitable for analytical aggregations
+
+---
 
 ## Final Choice
 
-SQLite
+PostgreSQL
 
-## Why
+---
 
-The challenge focused on functionality rather than large-scale deployment.
+## Rationale
 
-SQLite provided:
+The project initially used SQLite during local development.
 
-- Zero configuration
-- Fast setup
-- Easy Docker integration
+For deployment and evaluation, PostgreSQL was selected because it provides:
 
-For production environments PostgreSQL would be the preferred replacement.
+* Persistent cloud storage
+* Reliable concurrent access
+* Better scalability
+* Production-grade database capabilities
+
+The application is deployed on Render using a managed PostgreSQL instance.
+
+---
+
+# Decision 5: Analytics Architecture
+
+## Options Considered
+
+### Direct Querying
+
+Calculate analytics directly from raw events.
+
+### Pre-Aggregated Metrics
+
+Maintain separate analytical tables.
+
+---
+
+## Final Choice
+
+Direct Querying
+
+---
+
+## Rationale
+
+The dataset size for the hackathon is relatively small.
+
+Direct querying:
+
+* Reduced implementation complexity
+* Improved development speed
+* Kept architecture simple
+
+For larger deployments, analytical aggregations and materialized views would be introduced.
+
+---
+
+# Decision 6: Deployment Strategy
+
+## Options Considered
+
+### Local Only
+
+Simple but difficult for judges to evaluate.
+
+### Cloud Deployment
+
+Publicly accessible API environment.
+
+---
+
+## Final Choice
+
+Cloud Deployment on Render
+
+---
+
+## Rationale
+
+Benefits:
+
+* Public API access
+* Easy evaluation
+* No local setup required
+* Demonstrates production readiness
+
+This significantly improves the reviewer experience.
 
 ---
 
 # Future Improvements
 
-Future versions could include:
+Potential future enhancements include:
 
-- Visitor re-identification
-- Real-time streaming analytics
-- PostgreSQL
-- Kafka
-- Streamlit dashboard
-- Multi-store aggregation
+* Visitor re-identification
+* Multi-store analytics
+* Kafka event streaming
+* Real-time dashboards
+* Predictive analytics
+* Customer journey tracking
+* Distributed processing architecture
 
 ---
 
 # Conclusion
 
-The selected architecture prioritized simplicity, maintainability, and rapid delivery while preserving a clear path toward production scalability.
+The final architecture prioritizes simplicity, maintainability, and rapid delivery while maintaining a clear migration path toward enterprise-scale retail analytics. The selected technologies provide an effective balance between development speed, production readiness, and extensibility.

@@ -387,6 +387,35 @@ Include screenshots for:
 * Retail-Focused Decision Intelligence
 
 ---
+## Evaluation Guide
+
+### Live Demo
+
+Swagger Documentation:
+
+https://ai-retail-store-intelligence.onrender.com/docs
+
+### Testing Steps
+
+1. Open Swagger UI
+2. Execute:
+
+POST /demo/reset
+
+3. Test the following endpoints:
+
+- GET /stores/purplle_001/metrics
+- GET /stores/purplle_001/funnel
+- GET /stores/purplle_001/heatmap
+- GET /stores/purplle_001/anomalies
+- GET /stores/purplle_001/conversion
+- GET /stores/purplle_001/brands
+- GET /stores/purplle_001/staff
+
+Demo Store:
+
+purplle_001
+
 
 ## Author
 
